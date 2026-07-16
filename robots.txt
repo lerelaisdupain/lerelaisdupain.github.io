@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lerelaisdupain.github.io/sitemap.xml
