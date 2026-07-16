@@ -38,8 +38,49 @@ document.addEventListener('DOMContentLoaded', function () {
     statusEl.style.color = isOpen ? '#8fd19e' : '#e3a7a7';
   }
 
-  var todayRow = document.querySelector('#hours-table tr[data-day="' + day + '"]');
-  if (todayRow) todayRow.classList.add('today');
+  var todayRow = document.querySelector('#hours-table li[data-day="' + day + '"]');
+  if (todayRow) {
+    todayRow.classList.add('today');
+    var dayLabel = todayRow.querySelector('.hours-day');
+    if (dayLabel) {
+      var badge = document.createElement('span');
+      badge.className = 'today-badge';
+      badge.textContent = "Aujourd'hui";
+      dayLabel.appendChild(badge);
+    }
+  }
+
+  function formatMinutes(mins) {
+    var h = Math.floor(mins / 60);
+    var m = mins % 60;
+    return m === 0 ? h + 'h' : h + 'h' + (m < 10 ? '0' + m : m);
+  }
+
+  var dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+  var hoursStatusEl = document.getElementById('hours-status');
+  var hoursStatusText = document.getElementById('hours-status-text');
+  if (hoursStatusEl && hoursStatusText) {
+    var message;
+    if (isOpen) {
+      message = 'Ouvert actuellement — ferme à ' + formatMinutes(todaysHours.close);
+    } else {
+      hoursStatusEl.classList.add('is-closed');
+      var found = null;
+      for (var i = 1; i <= 7; i++) {
+        var d = (day + i) % 7;
+        if (hours[d]) { found = { offset: i, day: d }; break; }
+      }
+      if (todaysHours && minutesNow < todaysHours.open) {
+        message = "Fermé actuellement — ouvre aujourd'hui à " + formatMinutes(todaysHours.open);
+      } else if (found) {
+        var when = found.offset === 1 ? 'demain' : dayNames[found.day] + ' prochain';
+        message = 'Fermé actuellement — ouvre ' + when + ' à ' + formatMinutes(hours[found.day].open);
+      } else {
+        message = 'Actuellement fermé';
+      }
+    }
+    hoursStatusText.textContent = message;
+  }
 
   // Scroll reveal
   var revealEls = document.querySelectorAll('.reveal');
